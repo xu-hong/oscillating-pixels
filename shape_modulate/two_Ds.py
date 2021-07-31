@@ -118,7 +118,6 @@ class TwoD(object):
             ss = PVector(vectors[1].x, vectors[0].y)
             ee = PVector(vectors[0].x, vectors[1].y)  
         
-        print("debug: ss, ee, mag..", ss, ee, distort_magnitude)
         distorted = self._distort(ss, ee, distort_magnitude)   
         
         # "connect" two or more points in the list
@@ -132,7 +131,6 @@ class TwoD(object):
 
         if self.modulated:
             modulates = self._generate_tile_modulate_params(n)
-            print("debug: modulates...", modulates)
             for li, md in zip(coordinates, modulates):
                 if self.distribute_color:
                     self._set_color()
@@ -170,18 +168,14 @@ class TwoD(object):
                 elif mtype == "sine":
                     # picked 3.45 for no reason
                     z = 6 * TWO_PI * pos
-                    print("debug: z...", z)
                     mags.append(1.0 * sin(z) * max_mag)
                 elif mtype == "increase":
-                    print("debug: x, y, n, pos, mag", x, y, n, pos, 1.0 * pos * max_mag)
                     mags.append(1.0 * pos * max_mag)
                 elif mtype == "jump":
                     # picked some magic numbers
                     if pos < 0.5:
-                        print("debug: x, y, n, pos, mag", x, y, n, pos, 0)
                         mags.append(0)
                     else:
-                        print("debug: x, y, n, pos, mag", x, y, n, pos, (pos-0.5) * max_mag * 5)
                         mags.append((pos-0.5) * max_mag * 10)
                 elif mtype == "triangle":
                     dis2m = abs(pos - 0.5)
@@ -208,7 +202,6 @@ class Rectangle(TwoD):
         pushMatrix()
         translate(x1, y1)
         random_angle = random.uniform(0, rotate_angle)
-        print("rotating... ", random_angle)
         rotate(radians(random_angle))
         rect(0, 0, x2-x1, y2-y1)
         popMatrix()
