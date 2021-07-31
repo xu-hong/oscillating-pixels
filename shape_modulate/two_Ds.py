@@ -48,6 +48,47 @@ class TwoD(object):
                 coordinates.append(simple_line)
         return coordinates
     
+    def _generate_tile_modulate_params(self, n):
+        """Used for modulating distort magnitude within tiles.
+
+        Accepts current types of moduldation:
+        
+        uniform: default, no modulation
+        jump:
+        increase:
+        sine:
+        triangle:
+        """
+        max_mag = self._get_distort_magnitude()
+        mtype = self.mtype
+        mags = []
+
+        for x in range(n):
+            for y in range(n):
+                pos = (y*n+x) * 1.0 / n**2
+                if mtype == "uniform":
+                    mags.append(max_mag)
+                elif mtype == "sine":
+                    # picked 3.45 for no reason
+                    z = 6 * TWO_PI * pos
+                    mags.append(1.0 * sin(z) * max_mag)
+                elif mtype == "increase":
+                    mags.append(1.0 * pos * max_mag)
+                elif mtype == "jump":
+                    # picked some magic numbers: after 50% starts to distort
+                    if pos < 0.5:
+                        mags.append(0)
+                    else:
+                        mags.append((pos-0.5) * max_mag * 10)
+                elif mtype == "triangle":
+                    dis2m = abs(pos - 0.5)
+                    mags.append(1.0 * (1 - 2*dis2m) * max_mag)
+                else:
+                    print("Unacceptable type: ", mtype)
+                    mags = [max_mag] * n * n
+                    break
+        return mags
+    
     def _get_next_distort(self, p1, magnitude=1.0):
         """Takes one vector and generate the next for plotting.
         Called in self._distort()"""
@@ -144,57 +185,18 @@ class TwoD(object):
     def modulate(self, mtype="uniform"):
         self.modulated = True
         self.mtype = mtype
-
-    def _generate_tile_modulate_params(self, n):
-        """Used for modulating distort magnitude within tiles.
-
-        Accepts current types of moduldation:
-        
-        uniform: default, no modulation
-        jump:
-        increase:
-        sine:
-        triangle:
-        """
-        max_mag = self._get_distort_magnitude()
-        mtype = self.mtype
-        mags = []
-
-        for x in range(n):
-            for y in range(n):
-                pos = (y*n+x) * 1.0 / n**2
-                if mtype == "uniform":
-                    mags.append(max_mag)
-                elif mtype == "sine":
-                    # picked 3.45 for no reason
-                    z = 6 * TWO_PI * pos
-                    mags.append(1.0 * sin(z) * max_mag)
-                elif mtype == "increase":
-                    mags.append(1.0 * pos * max_mag)
-                elif mtype == "jump":
-                    # picked some magic numbers
-                    if pos < 0.5:
-                        mags.append(0)
-                    else:
-                        mags.append((pos-0.5) * max_mag * 10)
-                elif mtype == "triangle":
-                    dis2m = abs(pos - 0.5)
-                    mags.append(1.0 * (1 - 2*dis2m) * max_mag)
-                else:
-                    print("Unacceptable type: ", mtype)
-                    mags = [max_mag] * n * n
-                    break
-        return mags
-                
+            
         
 class Line(TwoD):
     def plot_function(self, *args):
         return line(*args)
-    
+
+   
 class Curve(TwoD):
     def plot_function(self, *args):
         x1, y1, x2, y2 = args
         bezier(x1, y1, x2, y1, x1, y2, x2, y2)
+
 
 class Rectangle(TwoD):
     def plot_function(self, x1, y1, x2, y2, rotate_angle):
