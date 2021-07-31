@@ -30,6 +30,6 @@ def sh(val):
 # return a range of floats
 SMALLEST_STEP=0.0001
 def frange(b, e, step):
-    b_scaled, e_scaled, step_scaled = (round(i/SMALLEST_STEP) for i in (b, e, step))
+    b_scaled, e_scaled, step_scaled = (int(x*1.0/SMALLEST_STEP) for x in (b, e, step))
     new_range = [i*SMALLEST_STEP for i in range(b_scaled, e_scaled, step_scaled)]
     return new_range
