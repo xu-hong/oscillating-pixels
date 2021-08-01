@@ -21,6 +21,8 @@ class TwoD(object):
     def _set_color(self):
         color = random.randint(0, 360)
         stroke(color, 100, 70)
+        noFill()
+        strokeWeight(w(0.001))
 
     def _generate_tile_coordinates(self, n):
         """Return a list of (x,y) coordinates of each tile."""

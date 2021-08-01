@@ -1,4 +1,4 @@
-from utils import frange
+from utils import frange, w, h
 from two_Ds import TwoD
 
 class Circle(TwoD):
@@ -26,10 +26,10 @@ class Circle(TwoD):
             theta += radian_per_step  
         
         if amount_to_nudge > 0:
-            points = self.distort(points, amount_to_nudge)
+            points = self._distort(points, amount_to_nudge)
         return points
 
-    def distort(self, points, amount_to_nudge):
+    def _distort(self, points, amount_to_nudge):
         distorted = []
         for x, y in points: 
             # we want to scale the noise according 
@@ -58,10 +58,17 @@ class Circle(TwoD):
         # z2 = frameCount/200.0
         pass
         
-    def draw(self):
+    def draw(self, radius=None):
+        radius = radius or self.radius_min
+        points = self.make_circle(radius, self.distort_magnitude)
+        beginShape()
+        for x, y in points:
+            vertex(w(x), h(y))
+        endShape()
+    
+    def tile(self):
         for radius in frange(self.radius_min, self.radius_max, self.radius_step):
-            points = self.make_circle(radius, self.distort_magnitude)
-            beginShape()
-            for x, y in points:
-                vertex(w(x), h(y))
-            endShape()
+            if self.distribute_color:
+                self._set_color()
+            self.draw(radius)
+            

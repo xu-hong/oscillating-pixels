@@ -1,6 +1,7 @@
 import random
 
 from two_Ds import Line, Curve, Rectangle
+from Circle import Circle
 from utils import w, h, frange
 
 def mousePressed():
@@ -19,8 +20,9 @@ def setup():
     colorMode(HSB, 360, 100, 100)
     background(360)
         
-    global li, tiles
-    li = Rectangle(w(0.6), h(0.1), w(0.9), h(0.99), 0.5)  
+    global li, c, tiles
+    # li = Rectangle(w(0.6), h(0.1), w(0.9), h(0.99), 0.5)  
+    li = Circle(0.1, 0.3, 0.02, 100)
     tiles = 1
 
     
@@ -29,9 +31,9 @@ def draw():
     
     background(360)
     li.randomize_color(distribute=False)
-    li.distort(60)
+    li.distort(0.01)
     li.modulate("increase")
-    li.tile(tiles)
+    li.tile()
     noLoop()
     
     
