@@ -11,6 +11,15 @@ class Circle(TwoD):
         self.num_points = num_points
         super(Circle, self).__init__(0, 0, 0, 0)
 
+    # modulate parameters used in animation
+    @property
+    def z(self):
+        return frameCount/300.0
+
+    @property
+    def z2(self):
+        return frameCount/200.0
+
     def make_circle(self, radius, amount_to_nudge):
         """return a list of coordinates pairs for the circle"""
         points = []
@@ -23,7 +32,7 @@ class Circle(TwoD):
             
             points.append([x, y])
             
-            theta += radian_per_step  
+            theta += radian_per_step
         
         if amount_to_nudge > 0:
             points = self._distort(points, amount_to_nudge)
@@ -38,8 +47,9 @@ class Circle(TwoD):
             # The Perlin noise function becomes zero when x and y are both whole numbers.
             # So, to avoid this, we want to shift our coordinates before sampling. 
             noise_fn = lambda x, y: noise(
-                                        (x + 0.31) * distance * 1.5,
-                                        (y - 1.73) * distance * 1.5)
+                                        (x + 0.31) * distance * 1.5 + self.z2,
+                                        (y - 1.73) * distance * 1.5 + self.z2,
+                                        self.z)
             
             if amount_to_nudge > 0:
                 # modulate
@@ -53,9 +63,6 @@ class Circle(TwoD):
         return distorted
         
     def animate(self):
-        # modulate
-        # z = frameCount/300.0
-        # z2 = frameCount/200.0
         pass
         
     def draw(self, radius=None):
@@ -66,7 +73,7 @@ class Circle(TwoD):
             vertex(w(x), h(y))
         endShape()
     
-    def tile(self):
+    def tile(self, n=None):
         for radius in frange(self.radius_min, self.radius_max, self.radius_step):
             if self.distribute_color:
                 self._set_color()
