@@ -21,6 +21,8 @@ class TwoD(object):
     def _set_color(self):
         color = random.randint(0, 360)
         stroke(color, 100, 70)
+        noFill()
+        strokeWeight(w(0.001))
 
     def _generate_tile_coordinates(self, n):
         """Return a list of (x,y) coordinates of each tile."""
@@ -47,6 +49,47 @@ class TwoD(object):
     
                 coordinates.append(simple_line)
         return coordinates
+    
+    def _generate_tile_modulate_params(self, n):
+        """Used for modulating distort magnitude within tiles.
+
+        Accepts current types of moduldation:
+        
+        uniform: default, no modulation
+        jump:
+        increase:
+        sine:
+        triangle:
+        """
+        max_mag = self._get_distort_magnitude()
+        mtype = self.mtype
+        mags = []
+
+        for x in range(n):
+            for y in range(n):
+                pos = (y*n+x) * 1.0 / n**2
+                if mtype == "uniform":
+                    mags.append(max_mag)
+                elif mtype == "sine":
+                    # picked 3.45 for no reason
+                    z = 6 * TWO_PI * pos
+                    mags.append(1.0 * sin(z) * max_mag)
+                elif mtype == "increase":
+                    mags.append(1.0 * pos * max_mag)
+                elif mtype == "jump":
+                    # picked some magic numbers: after 50% starts to distort
+                    if pos < 0.5:
+                        mags.append(0)
+                    else:
+                        mags.append((pos-0.5) * max_mag * 10)
+                elif mtype == "triangle":
+                    dis2m = abs(pos - 0.5)
+                    mags.append(1.0 * (1 - 2*dis2m) * max_mag)
+                else:
+                    print("Unacceptable type: ", mtype)
+                    mags = [max_mag] * n * n
+                    break
+        return mags
     
     def _get_next_distort(self, p1, magnitude=1.0):
         """Takes one vector and generate the next for plotting.
@@ -118,7 +161,6 @@ class TwoD(object):
             ss = PVector(vectors[1].x, vectors[0].y)
             ee = PVector(vectors[0].x, vectors[1].y)  
         
-        print("debug: ss, ee, mag..", ss, ee, distort_magnitude)
         distorted = self._distort(ss, ee, distort_magnitude)   
         
         # "connect" two or more points in the list
@@ -132,7 +174,6 @@ class TwoD(object):
 
         if self.modulated:
             modulates = self._generate_tile_modulate_params(n)
-            print("debug: modulates...", modulates)
             for li, md in zip(coordinates, modulates):
                 if self.distribute_color:
                     self._set_color()
@@ -146,61 +187,18 @@ class TwoD(object):
     def modulate(self, mtype="uniform"):
         self.modulated = True
         self.mtype = mtype
-
-    def _generate_tile_modulate_params(self, n):
-        """Used for modulating distort magnitude within tiles.
-
-        Accepts current types of moduldation:
-        
-        uniform: default, no modulation
-        jump:
-        increase:
-        sine:
-        triangle:
-        """
-        max_mag = self._get_distort_magnitude()
-        mtype = self.mtype
-        mags = []
-
-        for x in range(n):
-            for y in range(n):
-                pos = (y*n+x) * 1.0 / n**2
-                if mtype == "uniform":
-                    mags.append(max_mag)
-                elif mtype == "sine":
-                    # picked 3.45 for no reason
-                    z = 6 * TWO_PI * pos
-                    print("debug: z...", z)
-                    mags.append(1.0 * sin(z) * max_mag)
-                elif mtype == "increase":
-                    print("debug: x, y, n, pos, mag", x, y, n, pos, 1.0 * pos * max_mag)
-                    mags.append(1.0 * pos * max_mag)
-                elif mtype == "jump":
-                    # picked some magic numbers
-                    if pos < 0.5:
-                        print("debug: x, y, n, pos, mag", x, y, n, pos, 0)
-                        mags.append(0)
-                    else:
-                        print("debug: x, y, n, pos, mag", x, y, n, pos, (pos-0.5) * max_mag * 5)
-                        mags.append((pos-0.5) * max_mag * 10)
-                elif mtype == "triangle":
-                    dis2m = abs(pos - 0.5)
-                    mags.append(1.0 * (1 - 2*dis2m) * max_mag)
-                else:
-                    print("Unacceptable type: ", mtype)
-                    mags = [max_mag] * n * n
-                    break
-        return mags
-                
+            
         
 class Line(TwoD):
     def plot_function(self, *args):
         return line(*args)
-    
+
+   
 class Curve(TwoD):
     def plot_function(self, *args):
         x1, y1, x2, y2 = args
         bezier(x1, y1, x2, y1, x1, y2, x2, y2)
+
 
 class Rectangle(TwoD):
     def plot_function(self, x1, y1, x2, y2, rotate_angle):
@@ -208,7 +206,6 @@ class Rectangle(TwoD):
         pushMatrix()
         translate(x1, y1)
         random_angle = random.uniform(0, rotate_angle)
-        print("rotating... ", random_angle)
         rotate(radians(random_angle))
         rect(0, 0, x2-x1, y2-y1)
         popMatrix()
