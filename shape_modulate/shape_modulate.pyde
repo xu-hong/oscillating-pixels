@@ -4,25 +4,24 @@ from two_Ds import Line, Curve, Rectangle
 from Circle import Circle
 from utils import w, h, frange
 
-def _mousePressed():
+def mousePressed():
     global tiles
     loop()
     tiles *= 2
-    if tiles > 64:
+    if tiles > 32:
         tiles = 1
     
-def _mouseReleased():
+def mouseReleased():
     noLoop()
-    
 
 def setup():
-    size(800,800)
+    size(600, 600)
     colorMode(HSB, 360, 100, 100)
     background(360)
         
-    global d
-    # d = Rectangle(w(0.6), h(0.1), w(0.9), h(0.99), 0.5)  
-    d = Circle(0.1, 0.3, 0.005, 100)
+    global d, tiles
+    d = Line(0, 0.01, 1, 0.99, 0.5)  
+    # d = Circle(0.1, 0.3, 0.005, 100)
     tiles = 1
 
     
@@ -33,16 +32,14 @@ def draw():
     # only for circle
     noFill()
     
-    stroke(0)
-    strokeWeight(w(0.001))
+    # stroke(0)
+    strokeWeight(4)
     
+    # d.randomize_color(distribute=False)
+    d.distort(7)
+    d.modulate("increase")
+    d.tile(tiles)
     
-    d.randomize_color(distribute=False)
-    d.distort(0.1)
-    # d.modulate("increase")
-    # d.animate()
-    d.tile()
-    
-    # noLoop()
+    noLoop()
     
     
