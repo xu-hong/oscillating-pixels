@@ -62,9 +62,6 @@ class Circle(TwoD):
 
         return distorted
         
-    def animate(self):
-        pass
-        
     def draw(self, radius=None):
         radius = radius or self.radius_min
         points = self.make_circle(radius, self.distort_magnitude)

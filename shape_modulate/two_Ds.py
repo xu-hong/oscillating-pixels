@@ -3,14 +3,14 @@ from utils import w, h, sw, sh, vector
 
 class TwoD(object):
     def __init__(self, x1, y1, x2, y2, randomness=0.5):
-        self.x1 = x1
-        self.y1 = y1
-        self.x2 = x2
-        self.y2 = y2
-        self.x1s = sw(x1)
-        self.x2s = sw(x2)
-        self.y1s = sh(y1)
-        self.y2s = sh(y2)
+        self.x1 = w(x1)
+        self.y1 = h(y1)
+        self.x2 = w(x2)
+        self.y2 = h(y2)
+        self.x1s = x1
+        self.x2s = x2
+        self.y1s = y1
+        self.y2s = y2
         self.randomness = randomness
         self.random_color = False
         self.distribute_color = False
@@ -22,7 +22,6 @@ class TwoD(object):
         color = random.randint(0, 360)
         stroke(color, 100, 70)
         noFill()
-        strokeWeight(w(0.001))
 
     def _generate_tile_coordinates(self, n):
         """Return a list of (x,y) coordinates of each tile."""
@@ -71,8 +70,8 @@ class TwoD(object):
                 if mtype == "uniform":
                     mags.append(max_mag)
                 elif mtype == "sine":
-                    # picked 3.45 for no reason
-                    z = 6 * TWO_PI * pos
+                    # picked 3 for no reason
+                    z = 3 * TWO_PI * pos
                     mags.append(1.0 * sin(z) * max_mag)
                 elif mtype == "increase":
                     mags.append(1.0 * pos * max_mag)
@@ -221,7 +220,7 @@ class Rectangle(TwoD):
         translate(middle.x, middle.y)
         m2s = PVector.sub(ss, middle)
         m2e = PVector.sub(ee, middle)
-        rr = random.uniform(radians(-magnitude), radians(magnitude))
+        rr = random.uniform(radians(0), radians(magnitude))
         m2s.rotate(rr)
         m2e.rotate(rr)
 
