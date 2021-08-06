@@ -3,6 +3,7 @@ from utils import w, h, sw, sh, vector
 
 class TwoD(object):
     def __init__(self, x1, y1, x2, y2, randomness=0.5):
+        # basic
         self.x1 = w(x1)
         self.y1 = h(y1)
         self.x2 = w(x2)
@@ -12,20 +13,29 @@ class TwoD(object):
         self.y1s = y1
         self.y2s = y2
         self.randomness = randomness
+
+        # color 
         self.random_color = False
         self.distribute_color = False
+        self.fills = None
+
+        # distort
         self.distort_magnitude = 0
         self.modulated = False
         self.mtype = "uniform"
         
     def _set_color(self):
         color = random.randint(0, 360)
-        stroke(color, 100, 70)
-        noFill()
+        stroke(color, 70, 70)
+        self._set_fill(color)
+    
+    def _set_fill(self, color):
+        if self.fills:
+            fill(color, 70, 70, 75)
 
     def _generate_tile_coordinates(self, n):
         """Return a list of (x,y) coordinates of each tile."""
-        
+
         # canvas at each step begins at (x, y),
         # x and y being integer indexes,
         # i.e. (x/n, y/n) in a scaled world.
@@ -57,8 +67,9 @@ class TwoD(object):
         uniform: default, no modulation
         jump:
         increase:
-        sine:
+        wave:
         triangle:
+        random:
         """
         max_mag = self._get_distort_magnitude()
         mtype = self.mtype
@@ -69,7 +80,7 @@ class TwoD(object):
                 pos = (y*n+x) * 1.0 / n**2
                 if mtype == "uniform":
                     mags.append(max_mag)
-                elif mtype == "sine":
+                elif mtype == "wave":
                     # picked 3 for no reason
                     z = 3 * TWO_PI * pos
                     mags.append(1.0 * sin(z) * max_mag)
@@ -84,6 +95,13 @@ class TwoD(object):
                 elif mtype == "triangle":
                     dis2m = abs(pos - 0.5)
                     mags.append(1.0 * (1 - 2*dis2m) * max_mag)
+                elif mtype == "random":
+                    dice = random.random()
+                    # some magical gate I picked
+                    if dice > 0.80 and dice <= 0.90:
+                        mags.append(1.0 * dice * max_mag)
+                    else:
+                        mags.append(0)
                 else:
                     print("Unacceptable type: ", mtype)
                     mags = [max_mag] * n * n
@@ -131,9 +149,10 @@ class TwoD(object):
     def distort(self, magnitude=3):
         self.distort_magnitude = magnitude
         
-    def randomize_color(self, distribute=False):
+    def randomize_color(self, distribute=False, fills=None):
         self.random_color = True
         self.distribute_color = distribute
+        self.fills = fills
         
     def set_randomness(self, r):
         """Set the basic randomness within the shape.
@@ -220,7 +239,7 @@ class Rectangle(TwoD):
         translate(middle.x, middle.y)
         m2s = PVector.sub(ss, middle)
         m2e = PVector.sub(ee, middle)
-        rr = random.uniform(radians(0), radians(magnitude))
+        rr = random.uniform(radians(-magnitude), radians(magnitude))
         m2s.rotate(rr)
         m2e.rotate(rr)
 

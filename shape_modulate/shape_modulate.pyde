@@ -20,7 +20,7 @@ def setup():
     background(360)
         
     global d, tiles
-    d = Line(0, 0.01, 1, 0.99, 0.5)  
+    d = Rectangle(0, 0.01, 1, 0.99, 0.5)  
     # d = Circle(0.1, 0.3, 0.005, 100)
     tiles = 1
 
@@ -29,15 +29,15 @@ def draw():
     global d, tiles
     
     background(360)
-    # only for circle
-    noFill()
-    
+    # for circle
+    # noFill()
+        
     # stroke(0)
-    strokeWeight(4)
+    strokeWeight(2)
     
-    # d.randomize_color(distribute=False)
-    d.distort(7)
-    d.modulate("increase")
+    # d.randomize_color(distribute=False, fills=False)
+    d.distort(20)
+    d.modulate("wave")
     d.tile(tiles)
     
     noLoop()
