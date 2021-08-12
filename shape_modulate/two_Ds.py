@@ -211,6 +211,31 @@ class Line(TwoD):
     def plot_function(self, *args):
         return line(*args)
 
+class VLine(TwoD):
+    """A Vera Molnar Line"""
+    def __init__(self, x1, y1, x2, y2, randomness):
+        super(VLine, self).__init__(x1, y1, x2, y2, randomness=randomness)
+        if randomness:
+            print("Randomness parameter is disabled in Vline class.")
+   
+    def plot_function(self, *args):
+        x1, y1, x2, y2 = args
+        x_mid = (x1 + x2)/2.0
+        xm1 = random.uniform(x1, x_mid)
+        xm2 = random.uniform(x_mid, x2)
+        line(x1, y1, xm1, y2)
+        line(xm1, y1, xm2, y2)
+        line(xm2, y1, x2, y2)
+    
+    def distort(self, magnitude):
+        print("VLine.distort() is disabled.")
+    
+    def set_randomness(self, magnitude):
+        print("VLine.set_randomness() is disabled.")
+
+    def modulate(self, mtype):
+        print("VLine.modulate() is disabled.")
+
    
 class Curve(TwoD):
     def plot_function(self, *args):
