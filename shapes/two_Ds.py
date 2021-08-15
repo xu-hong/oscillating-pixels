@@ -253,28 +253,6 @@ class Rectangle(TwoD):
         rect(0, 0, x2-x1, y2-y1)
         popMatrix()
 
-    def _distort(self, ss, ee, magnitude):
-        """Obsolete: it's not working as expected.
-        Overriding _distort in super.
-
-        Accept two PVectors and a magnitude integer.
-        Here magnitude means the rotate degree."""
-        pushMatrix()
-        middle = PVector((ss.x+ee.x)/2.0, (ss.y+ee.y)/2.0)
-        translate(middle.x, middle.y)
-        m2s = PVector.sub(ss, middle)
-        m2e = PVector.sub(ee, middle)
-        rr = random.uniform(radians(-magnitude), radians(magnitude))
-        m2s.rotate(rr)
-        m2e.rotate(rr)
-
-        # reconstruct starting and ending points
-        ss = PVector.add(middle, m2s)
-        ee = PVector.add(middle, m2e)
-        popMatrix()
-
-        return [ss, ee]
-
     def draw(self, vectors=None, distort_magnitude=None):
         vectors = self._get_vectors(vectors)
         distort_magnitude = self._get_distort_magnitude(distort_magnitude)      
