@@ -1,17 +1,51 @@
+class Canvas():
+    def __init__(self,
+            cell_size,
+            speed=0.6,
+            shift=3.7,
+            divide=4,
+            spread1=0.05,
+            spread2=0.5):
+        self.cell_size = cell_size
+        self.cells = []
+        self.n_cell_x = int(width * 1.0 / self.cell_size)
+        self.n_cell_y = int(height * 1.0 / self.cell_size)
+        self.speed = speed
+        self.shift = shift
+        self.divide = divide 
+        self.spread1 = spread1
+        self.spread2 = spread2
+    
+    def build(self):
+        for x in range(self.n_cell_x):
+            for y in range(self.n_cell_y):
+                cell = Cell(x, y, self.cell_size)
+                self.cells.append(
+                    cell.set_speed(self.speed)
+                    .shift(self.shift)
+                    .divide(self.divide)
+                    .spread(self.spread1, self.spread2))
+
+
 class Cell():
-    global cells, n_cell_x, n_cell_y, cell_size
     def __init__(self, x, y, cell_size):
         self.x = x
         self.y = y
         self.cell_size = cell_size
-        self.c = None
-        
+        self.n_cell_x = int(width * 1.0 / self.cell_size)
+
         # default graphing configs
+        self.c = None
         self.speed = 1.0/5
         self.divider = 4.2
         self.shifter = 0.4
         self.bcolor = 0
         self.ecolor = 360
+        
+        # additive attributes
+        self._jitter = 0
+        self._osc = 0
+        self._n_osc = 0
         
     def spread(self, b, e=None):
         """Accepts 1 or 2 arguments,
@@ -44,52 +78,61 @@ class Cell():
         
     def set_speed(self, s):
         """The smaller the s, the slower"""
-        if s > 1:
-            print("Speed must be between 0 and 1")
+        if s > 10:
+            print("Speed must be between 0 and 10")
             return self
         self.speed = s
         return self
+    
+    def jitter(self):
+        # use perlin noise
+        self._jitter = map(noise(self.x, self.y, frameCount*self.speed), 0, 1, 0, PI)
+        
+    def osc(self, divider=None, shifter=None, speed=None):
+        if divider is None:
+            divider = self.divider
+        if shifter is None:
+            shifter = self.shifter
+        if speed is None:
+            speed = self.speed
+            
+        # oscilate with basic sine wave
+        x_div = self.x * ( 1 + divider )
+        y_shi = self.y * ( 1 + shifter )
+        
+        deg = map(x_div, 0, self.n_cell_x, 0, TWO_PI)
+        phase = y_shi * TWO_PI
+        time_mod = radians(frameCount*speed)
+        
+        self._osc +=  sin( deg + phase + time_mod )
+        self._n_osc += 1
         
     def get_color(self):
-        # strategies to generate colors
-        # use perlin noise
-        # c = map(noise(self.x, self.y, frameCount/10.0), 0, 1, 0, 360)
-        # use sine wave
-        x_div = self.x * ( 1 + self.divider )
-        y_shi = self.y * ( 1 + self.shifter )
-        deg = radians(map(x_div, 0, n_cell_x, 0, 360))
-        phase = y_shi * TWO_PI
-        time_mod = radians(frameCount*self.speed)
-        c = map( sin( deg + phase + time_mod ), -1, 1, self.bcolor, self.ecolor)
+        self.osc()
+        c = map( self._osc, -1 * self._n_osc, 1 * self._n_osc, self.bcolor, self.ecolor)
         return c
         
     def update(self):
         self.c = self.get_color()
         fill(self.c, 70, 70)
         strokeWeight(0)
-        rect(self.x*cell_size, self.y*cell_size, cell_size, cell_size)
-     
-        
+        rect(self.x*self.cell_size, self.y*self.cell_size, self.cell_size, self.cell_size)
+
+
 def setup():
     size(500, 500)
     colorMode(HSB, 360, 100, 100)
     background(300, 0, 100)
     
-    global cells, n_cell_x, n_cell_y, cell_size
-    cells = []
-    cell_size = 10
-    n_cell_x = width/cell_size
-    n_cell_y = height/cell_size
-    
-    for x in range(n_cell_x):
-        for y in range(n_cell_y):
-            cell = Cell(x, y, cell_size)
-            cells.append(cell.set_speed(0.6).shift(3.7).divide(4).spread(0.05, 0.5))
+    global canvas 
+    canvas = Canvas(cell_size=4, speed=0.5, shift=1, divide=1, spread1=0.8, spread2=None)
+    canvas.build()
                 
         
 def draw():
-    global cells, n_cell_x, n_cell_y, cell_size
+    global canvas
     background(240, 0, 100)
     
-    for cell in cells:
+    for cell in canvas.cells:
+        cell.osc(10, 1, 1)
         cell.update()
