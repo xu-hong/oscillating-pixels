@@ -10,7 +10,7 @@ def frange(b, e, step):
 def setup():
     size(500, 500)
     colorMode(HSB, 360, 100, 100, 100)
-    background(0, 0, 100, 80)
+    background(0, 0, 0, 80)
     
     global radius, beam_long, peak_r, amp, fft, mic
     radius = 100
@@ -18,8 +18,8 @@ def setup():
     beam_long = 200
     
 def draw():
-    background(0, 0, 100, 80)
-    stroke(10, 0, 0, 100)
+    background(0, 0, 0, 80)
+    stroke(10, 0, 100, 100)
     strokeWeight(0.1)
     noFill()
     translate(width/2, height/2)
