@@ -1,4 +1,4 @@
-、import random
+import random
 
 # return a range of floats
 SMALLEST_STEP=0.0001
